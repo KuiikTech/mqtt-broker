@@ -1,51 +1,63 @@
-import * as Aedes from "aedes";
-import net from "net";
-import ws from "websocket-stream";
-import http from "http";
+import express from "express";
 
-// puero de comunicación del servidor broker mqtt
-const mqttPort = 1883;
-const wsPort = 8080;
+const app = express();
 
-// instancia del broker
-const broker = Aedes.createBroker();
-
-// instancia del servidor pasando la instancia del broker
-const mqttServer = net.createServer(broker.handle);
-
-// instancia del servidor http y websocket
-const httpServer = http.createServer();
-const wsServer = ws.createServer(
-  {
-    server: httpServer,
-  },
-  broker.handle as any
-);
-
-// servidor escuchando en el puerto 1883
-mqttServer.listen(mqttPort, () => {
-  console.log("MQTT server listening on port", mqttPort);
+app.get("/", (req, res) => {
+  res.send("Hello, World!");
 });
 
-// servidor http y websocket escuchando en el puerto 8888
-httpServer.listen(wsPort, () => {
-  console.log("Websocket server listening on port", wsPort);
+app.listen(3000, () => {
+  console.log("Server is listening on port 3000");
 });
 
-// evento lanzado cuando se conecta un nuevo cliente
-wsServer.on("connection", () => {
-  console.log("Websocket client connected");
-});
+// import * as Aedes from "aedes";
+// import net from "net";
+// import ws from "websocket-stream";
+// import http from "http";
 
-// evento lanzado cuando se conecta un nuevo cliente
-mqttServer.on("connection", (socket) => {
-  console.log("Client connected:", socket.remoteAddress, socket.remotePort);
-});
+// // puero de comunicación del servidor broker mqtt
+// const mqttPort = 1883;
+// const wsPort = 8080;
 
-// evento que maneja la llegada de un nuevo mensaje desde un cliente
-broker.on("publish", (packet) => {
-  console.log("Topic: ", packet.topic, "Payload: ", packet);
-});
+// // instancia del broker
+// const broker = Aedes.createBroker();
+
+// // instancia del servidor pasando la instancia del broker
+// const mqttServer = net.createServer(broker.handle);
+
+// // instancia del servidor http y websocket
+// const httpServer = http.createServer();
+// const wsServer = ws.createServer(
+//   {
+//     server: httpServer,
+//   },
+//   broker.handle as any
+// );
+
+// // servidor escuchando en el puerto 1883
+// mqttServer.listen(mqttPort, () => {
+//   console.log("MQTT server listening on port", mqttPort);
+// });
+
+// // servidor http y websocket escuchando en el puerto 8888
+// httpServer.listen(wsPort, () => {
+//   console.log("Websocket server listening on port", wsPort);
+// });
+
+// // evento lanzado cuando se conecta un nuevo cliente
+// wsServer.on("connection", () => {
+//   console.log("Websocket client connected");
+// });
+
+// // evento lanzado cuando se conecta un nuevo cliente
+// mqttServer.on("connection", (socket) => {
+//   console.log("Client connected:", socket.remoteAddress, socket.remotePort);
+// });
+
+// // evento que maneja la llegada de un nuevo mensaje desde un cliente
+// broker.on("publish", (packet) => {
+//   console.log("Topic: ", packet.topic, "Payload: ", packet);
+// });
 
 // import ws from 'ws';
 
@@ -58,7 +70,6 @@ broker.on("publish", (packet) => {
 //   });
 //   ws.send("Hello from server");
 // });
-
 
 // import WebSocket from 'ws';
 
@@ -87,4 +98,3 @@ broker.on("publish", (packet) => {
 // ws.on('error', (error) => {
 //   console.error('WebSocket error:', error);
 // });
-
