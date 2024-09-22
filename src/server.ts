@@ -1,20 +1,48 @@
-// Import the 'express' module
-import express from "express";
+import * as Aedes from "aedes";
+import net from "net";
+import ws from "websocket-stream";
+import http from "http";
 
-// Create an Express application
-const app = express();
+// puero de comunicación del servidor broker mqtt
+const mqttPort = 1883;
+const wsPort = 3000;
 
-// Set the port number for the server
-const port = 3000;
+// instancia del broker
+const broker = Aedes.createBroker();
 
-// Define a route for the root path ('/')
-app.get("/", (req, res) => {
-  // Send a response to the client
-  res.send("Hello, TypeScript + Node.js + Express!");
+// instancia del servidor pasando la instancia del broker
+const mqttServer = net.createServer(broker.handle);
+
+// instancia del servidor http y websocket
+const httpServer = http.createServer();
+const wsServer = ws.createServer(
+  {
+    server: httpServer,
+  },
+  broker.handle as any
+);
+
+// servidor escuchando en el puerto 1883
+mqttServer.listen(mqttPort, () => {
+  console.log("MQTT server listening on port", mqttPort);
 });
 
-// Start the server and listen on the specified port
-app.listen(port, () => {
-  // Log a message when the server is successfully running
-  console.log(`Server is running on http://localhost:${port}`);
+// servidor http y websocket escuchando en el puerto 8888
+httpServer.listen(wsPort, () => {
+  console.log("Websocket server listening on port", wsPort);
+});
+
+// evento lanzado cuando se conecta un nuevo cliente
+wsServer.on("connection", () => {
+  console.log("Websocket client connected");
+});
+
+// evento lanzado cuando se conecta un nuevo cliente
+mqttServer.on("connection", (socket) => {
+  console.log("Client connected:", socket.remoteAddress, socket.remotePort);
+});
+
+// evento que maneja la llegada de un nuevo mensaje desde un cliente
+broker.on("publish", (packet) => {
+  console.log("Topic: ", packet.topic, "Payload: ", packet);
 });
