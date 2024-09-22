@@ -5,7 +5,7 @@ import http from "http";
 
 // puero de comunicación del servidor broker mqtt
 const mqttPort = 1883;
-const wsPort = 3000;
+const wsPort = 80;
 
 // instancia del broker
 const broker = Aedes.createBroker();
